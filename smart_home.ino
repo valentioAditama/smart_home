@@ -10,8 +10,8 @@ DS3232RTC myRTC;
 DHT11 dht11(2);
 Servo myservo;
 
-bool displayTimeDate = true;
 int pos = 0;
+bool servoActive = false;
 
 void setup() {
   Serial.begin(9600);
@@ -28,13 +28,13 @@ void setup() {
   // initialize for servo 
   myservo.attach(9);
 
-   // Set the RTC time (Uncomment this section and enter the correct time)
+  //  Set the RTC time (Uncomment this section and enter the correct time)
   // tmElements_t tm;
   // tm.Year = CalendarYrToTm(2023);  // Year
   // tm.Month = 11;                    // Month
-  // tm.Day = 14;                      // Day
-  // tm.Hour = 22;                     // Hour
-  // tm.Minute = 46;                    // Minute
+  // tm.Day = 16;                      // Day
+  // tm.Hour = 10;                     // Hour
+  // tm.Minute = 23;                    // Minute
   // tm.Second = 00;                    // Second
   // myRTC.write(tm);
 
@@ -46,17 +46,34 @@ void setup() {
   //   Serial.println("RTC time is valid.");
   //   // Print the time retrieved from the RTC
   //   Serial.println(F("RTC Time: "));
-  //   printTimeToLCD(myTime);
-  //   printDateToLCD(myTime);
   // } else {
   //   Serial.println("RTC time is invalid or uninitialized.");
   // }
 }
 
 void loop() {
-  time_t myTime = myRTC.get();
+    time_t myTime = myRTC.get();
+    tmElements_t tm;
+    breakTime(myTime, tm);
+  
+   if (tm.Hour == 7 && tm.Minute == 0) {
+    if (!servoActive) {
+      myservo.write(180);
+      delay(1000);
+      myservo.write(0);
+      servoActive = true;
+    }
+   }
 
-  if (displayTimeDate) {
+   if (tm.Hour == 22 && tm.Minute == 0) {
+    if (!servoActive) {
+      myservo.write(180);
+      delay(1000);
+      myservo.write(0);
+      servoActive = true;
+    }
+   }
+
     lcd.setCursor(0,0);
     lcd.print("Time: ");
     printTimeToLCD(myTime);
@@ -65,18 +82,18 @@ void loop() {
     lcd.print("Date: ");
     printDateToLCD(myTime);
     
-  } else {
+    delay(3000);
     lcd.clear();
+
     // Attempt to read the temperature value from the DHT11 sensor.
     int temperature = dht11.readTemperature();
     lcd.setCursor(0,0);
     lcd.print("Temperature: ");
     lcd.setCursor(4,1);
     printTemperatureToLCD(temperature);
-  }
-
-  delay(1000);
-  displayTimeDate = !displayTimeDate;
+    
+    delay(3000);
+    lcd.clear();
 }
 
 void printTimeToLCD(time_t t) {
@@ -119,22 +136,4 @@ void printTemperatureToLCD(int temperature){
     {
         lcd.println(DHT11::getErrorString(temperature));
     }
-
-    // Wait for 1 seconds before the next reading.
-    delay(1000);
-}
-
-void turnOnTheLamp() {
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-}
-
-void turnOffTheLamp() {
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
 }
