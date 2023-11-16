@@ -33,9 +33,9 @@ void setup() {
   // tm.Year = CalendarYrToTm(2023);  // Year
   // tm.Month = 11;                    // Month
   // tm.Day = 16;                      // Day
-  // tm.Hour = 10;                     // Hour
-  // tm.Minute = 23;                    // Minute
-  // tm.Second = 00;                    // Second
+  // tm.Hour = 12;                     // Hour
+  // tm.Minute = 10;                    // Minute
+  // tm.Second = 0;                    // Second
   // myRTC.write(tm);
 
   // // Get the current time from the RTC
@@ -65,7 +65,34 @@ void loop() {
     }
    }
 
+   if (tm.Hour == 9 && tm.Minute == 0) {
+    if (!servoActive) {
+      myservo.write(180);
+      delay(1000);
+      myservo.write(0);
+      servoActive = true;
+    }
+   }
+
+   if (tm.Hour == 12 && tm.Minute == 40) {
+    if (!servoActive) {
+      myservo.write(180);
+      delay(1000);
+      myservo.write(0);
+      servoActive = true;
+    }
+   }
+
    if (tm.Hour == 22 && tm.Minute == 0) {
+    if (!servoActive) {
+      myservo.write(180);
+      delay(1000);
+      myservo.write(0);
+      servoActive = true;
+    }
+   }
+
+   if (tm.Hour == 23 && tm.Minute == 50) {
     if (!servoActive) {
       myservo.write(180);
       delay(1000);
